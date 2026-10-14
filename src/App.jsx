@@ -4,8 +4,96 @@ import {
   GraduationCap, Trophy, Mail, Download,
   ChevronRight, X, Sparkles, Server, Database, Box, GitPullRequest, ExternalLink, Phone
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
+// --- CUSTOM CSS FOR ANIMATIONS ---
+const StyleBlock = () => (
+  <style>{`
+    /* Architectural Grid Background */
+    .bg-grid {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    }
+
+    /* Infinite Marquee */
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .animate-marquee {
+      animation: scroll 30s linear infinite;
+      display: flex;
+      width: max-content;
+    }
+
+    /* Crisp Cyber Glitch (Applied only to the emerald name span) */
+    .glitch-text {
+      position: relative;
+      display: inline-block;
+    }
+    .glitch-text::before, .glitch-text::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .glitch-text::before {
+      left: 2px;
+      text-shadow: -2px 0 #10b981;
+      animation: glitch-anim 2.5s infinite linear alternate-reverse;
+    }
+    .glitch-text::after {
+      left: -2px;
+      text-shadow: 2px 0 #047857;
+      animation: glitch-anim 3s infinite linear alternate-reverse;
+    }
+
+    /* Tight keyframe intervals (93%-100%) so slices snap instead of sliding */
+    @keyframes glitch-anim {
+      0%, 93% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
+      94% { opacity: 1; clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
+      96% { opacity: 1; clip-path: inset(60% 0 10% 0); transform: translate(2px, -1px); }
+      98% { opacity: 1; clip-path: inset(40% 0 50% 0); transform: translate(-2px, 2px); }
+      99% { opacity: 1; clip-path: inset(80% 0 5% 0); transform: translate(2px, -2px); }
+      100% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
+    }
+
+    /* Single-fire burst class triggered on mouse enter, automatically resets */
+    .glitch-burst::before {
+      animation: glitch-Once-1 0.35s steps(1, end) 1 !important;
+    }
+    .glitch-burst::after {
+      animation: glitch-Once-2 0.35s steps(1, end) 1 !important;
+    }
+
+    @keyframes glitch-Once-1 {
+      0% { opacity: 1; clip-path: inset(15% 0 75% 0); transform: translate(-3px, 1px); }
+      25% { opacity: 1; clip-path: inset(65% 0 10% 0); transform: translate(3px, -1px); }
+      50% { opacity: 1; clip-path: inset(35% 0 45% 0); transform: translate(-3px, 2px); }
+      75% { opacity: 1; clip-path: inset(80% 0 5% 0); transform: translate(3px, -2px); }
+      100% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
+    }
+
+    @keyframes glitch-Once-2 {
+      0% { opacity: 1; clip-path: inset(70% 0 10% 0); transform: translate(3px, -1px); }
+      25% { opacity: 1; clip-path: inset(10% 0 80% 0); transform: translate(-3px, 2px); }
+      50% { opacity: 1; clip-path: inset(50% 0 25% 0); transform: translate(3px, 1px); }
+      75% { opacity: 1; clip-path: inset(25% 0 60% 0); transform: translate(-3px, -1px); }
+      100% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
+    }
+  `}</style>
+);
+
+// --- ANIMATION COMPONENTS ---
 export function FadeIn({ children, delay = 0, className = "" }) {
   return (
     <motion.div
@@ -20,19 +108,43 @@ export function FadeIn({ children, delay = 0, className = "" }) {
   );
 }
 
-export function HoverCard({ children, className = "" }) {
+// Vercel-style Mouse Spotlight Card + Pop-Out Scaling
+export function SpotlightCard({ children, className = "" }) {
+  const divRef = useRef(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e) => {
+    if (!divRef.current) return;
+    const rect = divRef.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2 }}
-      className={className}
+      ref={divRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setOpacity(1)}
+      onMouseLeave={() => setOpacity(0)}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className={`relative overflow-hidden rounded-2xl border border-zinc-800 hover:border-emerald-500/40 bg-zinc-900 transition-colors duration-300 hover:shadow-2xl hover:shadow-emerald-950/30 ${className}`}
     >
-      {children}
+      <div
+        className="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-300 z-0"
+        style={{
+          opacity,
+          background: `radial-gradient(600px circle at ${position.x}px ${position.y}px, rgba(16, 185, 129, 0.12), transparent 40%)`,
+        }}
+      />
+      <div className="relative z-10 h-full">
+        {children}
+      </div>
     </motion.div>
   );
 }
 
+// --- PORTFOLIO DATA ---
 const PORTFOLIO_DATA = {
   name: "Rohan Singh Rajput",
   role: "Senior Backend Engineer",
@@ -165,21 +277,28 @@ export default function PortfolioApp() {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-300 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
-      <Navbar />
+    <div className="min-h-screen bg-zinc-950 text-zinc-300 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 relative">
+      <StyleBlock />
       
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 overflow-hidden">
-        <HeroSection chatOpen={chatOpen} setChatOpen={setChatOpen} />
-        
-        <div className="mt-24 space-y-32">
-          <ExperienceSection />
-          <SkillsSection />
-          <OpenSourceSection />
-          <AwardsSection />
-        </div>
-      </main>
+      {/* Structural Network Background */}
+      <div className="absolute inset-0 z-0 bg-grid pointer-events-none opacity-50"></div>
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-20">
+        <div className="w-[800px] h-[800px] bg-emerald-600/10 rounded-full blur-[150px]"></div>
+      </div>
 
-      <Footer />
+      <div className="relative z-10">
+        <Navbar />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 overflow-hidden">
+          <HeroSection chatOpen={chatOpen} setChatOpen={setChatOpen} />
+          <div className="mt-24 space-y-32">
+            <ExperienceSection />
+            <SkillsSection />
+            <OpenSourceSection />
+            <AwardsSection />
+          </div>
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }
@@ -204,12 +323,18 @@ function Navbar() {
 }
 
 function HeroSection({ chatOpen, setChatOpen }) {
+  const [bursting, setBursting] = useState(false);
+  const marqueeTech = ["GOLANG", "MICROSERVICES", "AWS", "POSTGRESQL", "KAFKA", "REDIS", "DOCKER", "KUBERNETES", "PYTHON", "gRPC"];
+
+  const triggerGlitchBurst = () => {
+    if (bursting) return;
+    setBursting(true);
+    setTimeout(() => setBursting(false), 350);
+  };
+
   return (
     <section className="relative pt-12 pb-16 lg:pt-24 lg:pb-32 flex flex-col items-center text-center">
-      <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none opacity-20">
-        <div className="w-[600px] h-[600px] bg-emerald-600/20 rounded-full blur-[120px]"></div>
-      </div>
-
+      
       <FadeIn delay={0.1}>
         <div className="inline-flex items-center space-x-2 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-1.5 mb-8">
           <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -218,8 +343,15 @@ function HeroSection({ chatOpen, setChatOpen }) {
       </FadeIn>
 
       <FadeIn delay={0.2}>
-        <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6">
-          Hi, I'm <span className="text-emerald-400">{PORTFOLIO_DATA.name}</span>
+        <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 select-none">
+          Hi, I'm{' '}
+          <span 
+            onMouseEnter={triggerGlitchBurst}
+            className={`text-emerald-400 glitch-text cursor-pointer ${bursting ? 'glitch-burst' : ''}`}
+            data-text={PORTFOLIO_DATA.name}
+          >
+            {PORTFOLIO_DATA.name}
+          </span>
         </h1>
       </FadeIn>
       
@@ -233,12 +365,34 @@ function HeroSection({ chatOpen, setChatOpen }) {
         <CurlBadge />
       </FadeIn>
 
-      <FadeIn delay={0.5} className="w-full max-w-3xl relative z-10 transition-all duration-500 ease-in-out">
-        {!chatOpen ? (
-          <HoverCard className="w-full">
-            <div 
+      {/* Infinite Tech Stack Marquee */}
+      <FadeIn delay={0.5} className="w-full overflow-hidden border-y border-zinc-800/50 bg-zinc-900/30 py-3 my-10 backdrop-blur-sm">
+        <div className="flex animate-marquee">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="flex items-center space-x-12 mx-6">
+              {marqueeTech.map((tech, j) => (
+                <span key={j} className="text-zinc-500 font-mono text-sm tracking-widest flex items-center">
+                  {tech}
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/30 ml-12"></span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </FadeIn>
+
+      <FadeIn delay={0.6} className="w-full max-w-3xl relative z-20 mt-8">
+        <AnimatePresence mode="wait">
+          {!chatOpen ? (
+            <motion.div 
+              key="chat-trigger"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.2 }}
               onClick={() => setChatOpen(true)}
-              className="group flex items-center bg-zinc-900/80 border border-zinc-800 hover:border-emerald-500/50 rounded-2xl shadow-2xl overflow-hidden cursor-text transition-all duration-300 hover:shadow-emerald-900/20 backdrop-blur-sm p-4"
+              className="group flex items-center bg-zinc-900/80 border border-zinc-800 hover:border-emerald-500/50 rounded-2xl shadow-2xl overflow-hidden cursor-text transition-colors duration-300 hover:shadow-emerald-900/20 backdrop-blur-sm p-4"
             >
               <Sparkles className="w-6 h-6 text-emerald-400 mr-4 flex-shrink-0" />
               <div className="flex-1 text-left text-zinc-400 text-lg">
@@ -248,17 +402,20 @@ function HeroSection({ chatOpen, setChatOpen }) {
                 <span>Press</span>
                 <kbd className="bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-300">Enter</kbd>
               </div>
-            </div>
-          </HoverCard>
-        ) : (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="animate-in fade-in"
-          >
-            <AIChatBox onClose={() => setChatOpen(false)} />
-          </motion.div>
-        )}
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="chat-box"
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1.02, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              className="w-full py-2"
+            >
+              <AIChatBox onClose={() => setChatOpen(false)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </FadeIn>
     </section>
   );
@@ -275,16 +432,18 @@ function CurlBadge() {
   };
 
   return (
-    <div 
+    <motion.div 
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
       onClick={handleCopy}
-      className="inline-flex items-center space-x-3 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 px-4 py-2 rounded-lg font-mono text-xs text-zinc-400 cursor-pointer transition-colors group mb-8"
+      className="inline-flex items-center space-x-3 bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 px-4 py-2 rounded-lg font-mono text-xs text-zinc-400 cursor-pointer transition-colors group mb-2 hover:shadow-lg hover:shadow-emerald-900/20"
     >
       <span className="text-emerald-400">$</span>
       <span>{command}</span>
       <span className="text-zinc-600 group-hover:text-zinc-400 text-[10px] ml-2">
         {copied ? "copied!" : "click to copy"}
       </span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -294,16 +453,40 @@ function AIChatBox({ onClose }) {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const chatBoxWrapperRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
-  const scrollToBottom = () => {
-    if (chatContainerRef.current) {
+  // On mount: focus input WITHOUT jumping the page, and center the whole chat box in the viewport
+  useEffect(() => {
+    inputRef.current?.focus({ preventScroll: true });
+
+    const timer = setTimeout(() => {
+      chatBoxWrapperRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }, 50);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  // Scroll internal message container only when new messages arrive
+  useEffect(() => {
+    if (!chatContainerRef.current) return;
+    if (messages.length <= 1) {
+      chatContainerRef.current.scrollTop = 0;
+    } else {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  };
-
-  useEffect(() => {
-    scrollToBottom();
   }, [messages, isLoading]);
 
   const formatAIResponse = (text) => {
@@ -378,27 +561,34 @@ function AIChatBox({ onClose }) {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[500px] w-full text-left">
-      <div className="bg-zinc-900/80 border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+    <div 
+      ref={chatBoxWrapperRef}
+      className="bg-zinc-900 border border-emerald-500/40 ring-1 ring-emerald-500/20 rounded-2xl shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] overflow-hidden flex flex-col h-[420px] w-full text-left scroll-mt-24"
+    >
+      {/* Top Header with Close Cross */}
+      <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Bot className="w-5 h-5 text-emerald-400" />
-          <span className="font-medium text-zinc-200">Rohan's AI Agent</span>
+          <span className="font-semibold text-zinc-100">Rohan's AI Agent</span>
+          <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
         </div>
         <button 
           onClick={onClose}
-          className="p-1 hover:bg-zinc-800 rounded-lg transition-colors text-zinc-400 hover:text-white"
+          title="Close chat (Esc)"
+          className="p-1.5 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg transition-colors text-zinc-300 hover:text-white flex items-center justify-center"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
       </div>
 
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-950/50 scroll-smooth">
+      {/* Messages Area */}
+      <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-zinc-950/60 scroll-smooth">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+            <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
               msg.role === 'user' 
                 ? 'bg-emerald-600 text-white rounded-tr-sm' 
-                : 'bg-zinc-900 text-zinc-300 rounded-tl-sm border border-zinc-800'
+                : 'bg-zinc-900 text-zinc-200 rounded-tl-sm border border-zinc-800'
             }`}>
               <div className="text-sm leading-relaxed">
                 {msg.role === 'user' ? msg.content : formatAIResponse(msg.content)}
@@ -417,9 +607,11 @@ function AIChatBox({ onClose }) {
         )}
       </div>
 
-      <div className="p-3 bg-zinc-900 border-t border-zinc-800">
+      {/* Input Bar */}
+      <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex-shrink-0">
         <div className="relative flex items-center">
           <input
+            ref={inputRef}
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -431,7 +623,6 @@ function AIChatBox({ onClose }) {
             }}
             placeholder="Ask about my backend architecture experience..."
             className="w-full bg-zinc-950 text-white rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 border border-zinc-800 placeholder-zinc-500"
-            autoFocus
           />
           <button 
             onClick={handleSend}
@@ -459,24 +650,30 @@ function ExperienceSection() {
       <div className="relative border-l border-zinc-800 ml-4 space-y-12 pb-4">
         {PORTFOLIO_DATA.experience.map((exp, idx) => (
           <FadeIn key={idx} delay={0.1 * idx} className="relative pl-8 md:pl-12 group">
-            <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-zinc-950 z-10"></div>
+            {/* Interactive Timeline Dot */}
+            <div className="absolute left-[-5px] top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-zinc-950 z-10 transition-all duration-300 group-hover:scale-150 group-hover:bg-emerald-400 group-hover:shadow-[0_0_12px_#10b981]"></div>
             
             <div className="md:grid md:grid-cols-5 md:gap-8 items-start">
-              <div className="md:col-span-2 mb-4 md:mb-0 pt-1">
-                <h3 className="text-xl font-bold text-zinc-100">{exp.company}</h3>
+              {/* Pop-Out Company Info Block */}
+              <div className="md:col-span-2 mb-4 md:mb-0 pt-1 origin-left transition-all duration-300 group-hover:translate-x-2 group-hover:scale-105 hover:!scale-110 cursor-default">
+                <h3 className="text-xl font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{exp.company}</h3>
                 <div className="text-emerald-400 font-medium mb-1">{exp.role}</div>
-                <div className="text-zinc-500 text-sm font-mono">{exp.period}</div>
+                <div className="text-zinc-500 text-sm font-mono group-hover:text-zinc-400 transition-colors">{exp.period}</div>
               </div>
-              <div className="md:col-span-3 bg-zinc-900/50 border border-zinc-800 p-6 rounded-2xl group-hover:border-zinc-700 transition-colors">
-                <p className="text-zinc-400 mb-4">{exp.description}</p>
-                <ul className="space-y-2">
-                  {exp.achievements.map((ach, aIdx) => (
-                    <li key={aIdx} className="flex items-start">
-                      <ChevronRight className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0 mt-1" />
-                      <span className="text-zinc-300 text-sm">{ach}</span>
-                    </li>
-                  ))}
-                </ul>
+              
+              {/* Spotlight Card with Pop-Out */}
+              <div className="md:col-span-3">
+                <SpotlightCard className="p-6">
+                  <p className="text-zinc-400 mb-4">{exp.description}</p>
+                  <ul className="space-y-2">
+                    {exp.achievements.map((ach, aIdx) => (
+                      <li key={aIdx} className="flex items-start">
+                        <ChevronRight className="w-4 h-4 text-emerald-500 mr-2 flex-shrink-0 mt-1 transition-transform duration-300 group-hover:translate-x-1" />
+                        <span className="text-zinc-300 text-sm">{ach}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </SpotlightCard>
               </div>
             </div>
           </FadeIn>
@@ -510,20 +707,20 @@ function SkillsSection() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {PORTFOLIO_DATA.skills.map((skillGroup, idx) => (
           <FadeIn key={idx} delay={idx * 0.1} className="h-full">
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl h-full hover:border-emerald-500/30 transition-colors">
+            <SpotlightCard className="h-full p-6 group">
               <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-zinc-800/50">
                 {getCategoryIcon(skillGroup.icon)}
-                <h3 className="text-lg font-bold text-zinc-100">{skillGroup.category}</h3>
+                <h3 className="text-lg font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{skillGroup.category}</h3>
               </div>
-              <ul className="space-y-3">
+              <ul className="space-y-3 relative z-10">
                 {skillGroup.items.map((item, itemIdx) => (
-                  <li key={itemIdx} className="flex items-center text-zinc-400 group">
-                    <ChevronRight className="w-4 h-4 mr-2 opacity-0 -ml-6 group-hover:opacity-100 group-hover:ml-0 text-emerald-500 transition-all duration-300" />
-                    <span className="group-hover:text-zinc-200 transition-colors duration-300 transform group-hover:translate-x-1">{item}</span>
+                  <li key={itemIdx} className="flex items-center text-zinc-400 hover:text-zinc-100 transition-all duration-200 hover:translate-x-1 cursor-default">
+                    <ChevronRight className="w-4 h-4 mr-2 text-emerald-500/0 group-hover:text-emerald-500 transition-colors" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </SpotlightCard>
           </FadeIn>
         ))}
       </div>
@@ -544,20 +741,20 @@ function OpenSourceSection() {
       <div className="grid md:grid-cols-2 gap-6">
         {PORTFOLIO_DATA.openSource.map((oss, idx) => (
           <FadeIn key={idx} delay={0.1 * idx} className="h-full">
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl hover:border-emerald-500/50 hover:bg-zinc-900 transition-all group flex flex-col h-full">
+            <SpotlightCard className="h-full p-6 group">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-zinc-100 group-hover:text-emerald-300 transition-colors">{oss.project}</h3>
                   <div className="text-emerald-500 text-sm font-medium mt-1">{oss.role}</div>
                 </div>
-                <a href={oss.link} target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-emerald-400 transition-colors">
+                <a href={oss.link} target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-emerald-400 transition-colors relative z-20">
                   <ExternalLink className="w-5 h-5" />
                 </a>
               </div>
               <p className="text-zinc-400 text-sm flex-1 leading-relaxed">
                 {oss.description}
               </p>
-            </div>
+            </SpotlightCard>
           </FadeIn>
         ))}
       </div>
@@ -579,14 +776,14 @@ function AwardsSection() {
           <div className="space-y-6">
             {PORTFOLIO_DATA.awards.map((award, idx) => (
               <FadeIn key={idx} delay={0.1}>
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
-                  <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                <SpotlightCard className="p-6 group">
+                  <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity z-0 pointer-events-none">
                     <Trophy className="w-24 h-24 text-emerald-500" />
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-1 relative z-10">{award.title}</h3>
+                  <h3 className="text-xl font-bold text-white group-hover:text-emerald-300 transition-colors mb-1 relative z-10">{award.title}</h3>
                   <div className="text-emerald-400 text-sm font-medium mb-3 relative z-10">{award.event}</div>
                   <p className="text-zinc-400 text-sm relative z-10">{award.description}</p>
-                </div>
+                </SpotlightCard>
               </FadeIn>
             ))}
           </div>
@@ -602,13 +799,13 @@ function AwardsSection() {
           <div className="space-y-6">
             {PORTFOLIO_DATA.education.map((edu, idx) => (
               <FadeIn key={idx} delay={0.1}>
-                <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl hover:border-zinc-700 transition-colors">
-                  <h3 className="text-lg font-bold text-white mb-1">{edu.degree}</h3>
-                  <div className="text-zinc-400 text-sm mb-2">{edu.institution}</div>
-                  <div className="inline-block bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded font-mono">
+                <SpotlightCard className="p-6 group">
+                  <h3 className="text-lg font-bold text-white group-hover:text-emerald-300 transition-colors mb-1 relative z-10">{edu.degree}</h3>
+                  <div className="text-zinc-400 text-sm mb-2 relative z-10">{edu.institution}</div>
+                  <div className="inline-block bg-zinc-800 text-zinc-300 text-xs px-2 py-1 rounded font-mono relative z-10">
                     {edu.period}
                   </div>
-                </div>
+                </SpotlightCard>
               </FadeIn>
             ))}
           </div>
@@ -631,14 +828,16 @@ function Footer() {
           </FadeIn>
 
           <FadeIn delay={0.1} className="flex justify-center items-center mb-12">
-            <a 
+            <motion.a 
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               href="/resume.pdf"
               download="Rohan_Singh_Rajput_Resume.pdf"
-              className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
+              className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/20"
             >
               <Download className="w-5 h-5 mr-2" />
               Download Resume
-            </a>
+            </motion.a>
           </FadeIn>
           
           <FadeIn delay={0.2} className="flex flex-wrap justify-center items-center gap-6 sm:gap-8">
