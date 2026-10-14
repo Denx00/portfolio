@@ -154,9 +154,10 @@ const PORTFOLIO_DATA = {
       company: "Axis Direct",
       role: "Senior Backend Engineer - Golang",
       period: "March 2025 - Present",
-      description: "Leading backend architecture, optimizing database performance, and scaling microservices.",
+      description: "Leading backend architecture, optimizing high-throughput financial data pipelines, and scaling microservices.",
       achievements: [
-        "Overhauled the Security Master platform architecture, slashing API latency by 60%",
+        "Architected a scalable multi-portfolio holdings platform, optimizing SQL data layers and caching mechanisms to serve real-time stock holdings and historical economics with sub-second latency",
+        "Overhauled the Security Master platform architecture using cron-driven caching and microservice refactoring, slashing API latency by 60%",
         "Optimized options chain data retrieval, reducing peak response times from 5s to under 100ms with Redis",
         "Elevated system reliability to 99.99% uptime and mentored 4 engineers"
       ]
@@ -250,7 +251,7 @@ ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - Focus: Backend architecture, Golang, Python, Microservices, Scalable Systems.
 
 ### Experience History
-- Axis Direct (March 2025 to Present): Senior Backend Engineer - Golang. Slashing API latency by 60%, reducing options chain retrieval from 5s to 100ms via Redis, and achieving 99.99% uptime. 
+- Axis Direct (March 2025 to Present): Senior Backend Engineer - Golang. Architected a scalable multi-portfolio holdings platform (optimizing SQL stored procedures and caching layers for sub-second delivery of user stock holdings and historical economics), overhauled the Security Master platform to slash API latency by 60%, reduced options chain retrieval from 5s to under 100ms via Redis, and achieved 99.99% uptime while mentoring 4 engineers.
 - Wiz Freight (June 2022 to Feb 2025): Software Development Engineer 1. Built AWS Go gRPC APIs and real-time WebSockets to optimize logistics by 30%.
 - NGP Websmart Pvt. Ltd (Jan 2022 to Apr 2022): Software Developer Intern. Streamlined operational workflows using Python automation.
 
@@ -288,7 +289,7 @@ export default function PortfolioApp() {
 
       <div className="relative z-10">
         <Navbar />
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 overflow-hidden">
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 overflow-hidden">
           <HeroSection chatOpen={chatOpen} setChatOpen={setChatOpen} />
           <div className="mt-24 space-y-32">
             <ExperienceSection />
@@ -305,17 +306,31 @@ export default function PortfolioApp() {
 
 function Navbar() {
   return (
-    <nav className="fixed top-0 w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Terminal className="w-6 h-6 text-emerald-400" />
-          <span className="text-white font-bold text-xl tracking-tight">Rohan<span className="text-emerald-500">.dev</span></span>
-        </div>
-        <div className="hidden md:flex space-x-8 text-sm font-medium text-zinc-400">
-          <a href="#experience" className="hover:text-emerald-400 transition-colors">Experience</a>
-          <a href="#skills" className="hover:text-emerald-400 transition-colors">Skills</a>
-          <a href="#opensource" className="hover:text-emerald-400 transition-colors">Open Source</a>
-          <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
+    <nav className="fixed top-0 w-full z-50 bg-zinc-950/85 backdrop-blur-md border-b border-zinc-800/60">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <a href="#" className="flex items-center space-x-2.5 group">
+          <Terminal className="w-6 h-6 text-emerald-400 transition-transform duration-300 group-hover:scale-110" />
+          <span className="text-white font-bold text-xl tracking-tight">
+            Rohan<span className="text-emerald-500">.dev</span>
+          </span>
+        </a>
+
+        <div className="hidden md:flex items-center gap-8 lg:gap-14 text-[15px] font-medium tracking-wide text-zinc-400">
+          <a href="#experience" className="px-3.5 py-2 rounded-xl hover:text-emerald-400 hover:bg-zinc-900/80 transition-all">
+            Experience
+          </a>
+          <a href="#skills" className="px-3.5 py-2 rounded-xl hover:text-emerald-400 hover:bg-zinc-900/80 transition-all">
+            Skills
+          </a>
+          <a href="#opensource" className="px-3.5 py-2 rounded-xl hover:text-emerald-400 hover:bg-zinc-900/80 transition-all">
+            Open Source
+          </a>
+          <a href="#awards" className="px-3.5 py-2 rounded-xl hover:text-emerald-400 hover:bg-zinc-900/80 transition-all">
+            Awards
+          </a>
+          <a href="#contact" className="px-3.5 py-2 rounded-xl hover:text-emerald-400 hover:bg-zinc-900/80 transition-all">
+            Contact
+          </a>
         </div>
       </div>
     </nav>
@@ -333,7 +348,7 @@ function HeroSection({ chatOpen, setChatOpen }) {
   };
 
   return (
-    <section className="relative pt-12 pb-16 lg:pt-24 lg:pb-32 flex flex-col items-center text-center">
+    <section className="relative pt-12 pb-16 lg:pt-20 lg:pb-32 flex flex-col items-center text-center">
       
       <FadeIn delay={0.1}>
         <div className="inline-flex items-center space-x-2 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-1.5 mb-8">
