@@ -1,0 +1,29 @@
+{
+  "name": "Rohan Singh Rajput",
+  "title": "Senior Backend Engineer",
+  "location": "Neemrana, Rajasthan, India",
+  "experience": "nearly 5 years",
+  "status": "Available for new opportunities",
+  "skills": {
+    "languages": ["Golang", "Python"],
+    "databases_and_cache": ["PostgreSQL", "MongoDB", "Redis", "DynamoDB"],
+    "architecture_and_protocols": ["Microservices", "Event-Driven Architecture", "gRPC", "RESTful APIs", "WebSockets", "Apache Kafka"],
+    "cloud_and_infrastructure": ["AWS (S3, SQS)", "Docker", "Kubernetes", "HashiCorp Vault"],
+    "devops_and_observability": ["Jenkins", "JFrog", "Git", "Dynatrace"]
+  },
+  "key_achievements": [
+    "Architected scalable microservices and overhauled platform architecture, slashing API latency by 60%.",
+    "Optimized data retrieval workflows using Redis, reducing peak response times from 5s to under 100ms.",
+    "Engineered Go gRPC APIs and real-time WebSockets, reducing manual operational intervention by 30%.",
+    "Elevated core system reliability to 99.99% uptime while mentoring junior backend engineers."
+  ],
+  "awards": [
+    "Best Debutant Award (2026) - Recognized for outstanding platform impact and driving rapid architectural stability."
+  ],
+  "contact": {
+    "email": "rsr86854@gmail.com",
+    "phone": "+91-7665505428",
+    "github": "github.com/Denx00",
+    "linkedin": "linkedin.com/in/rohansinghrajput06"
+  }
+}

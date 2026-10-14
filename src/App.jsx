@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Terminal, Send, Bot, Code, Briefcase, 
-  GraduationCap, Trophy, Mail, 
+  GraduationCap, Trophy, Mail, Download,
   ChevronRight, X, Sparkles, Server, Database, Box, GitPullRequest, ExternalLink, Phone
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -36,7 +36,7 @@ export function HoverCard({ children, className = "" }) {
 const PORTFOLIO_DATA = {
   name: "Rohan Singh Rajput",
   role: "Senior Backend Engineer",
-  bio: "Architecting scalable, resilient backend systems with a deep focus on Golang and microservices. Passionate about building robust infrastructure that powers modern web applications.",
+  bio: "Senior Backend Engineer with nearly 5 years of experience architecting scalable, resilient systems with a deep focus on Golang and microservices. Passionate about building robust infrastructure that powers modern web applications.",
   experience: [
     {
       company: "Axis Direct",
@@ -70,9 +70,26 @@ const PORTFOLIO_DATA = {
     }
   ],
   skills: [
-    "Golang", "Python", "Microservices", "gRPC", "Docker", 
-    "Kubernetes", "AWS", "PostgreSQL", "MongoDB", "Redis",
-    "Apache Kafka", "DynamoDB", "CI/CD", "System Architecture"
+    {
+      category: "Languages & Data",
+      items: ["Golang", "Python", "PostgreSQL", "MongoDB", "Redis", "DynamoDB"],
+      icon: "Database"
+    },
+    {
+      category: "Architecture",
+      items: ["Microservices", "Event-Driven", "gRPC", "RESTful APIs", "WebSockets", "Apache Kafka"],
+      icon: "Server"
+    },
+    {
+      category: "Cloud & Infra",
+      items: ["AWS (S3, SQS)", "Docker", "Kubernetes", "HashiCorp Vault"],
+      icon: "Box"
+    },
+    {
+      category: "DevOps & Tools",
+      items: ["Jenkins", "JFrog", "Git", "Dynatrace"],
+      icon: "Terminal"
+    }
   ],
   awards: [
     {
@@ -110,12 +127,14 @@ You are speaking with a recruiter or engineering manager who is visiting Rohan's
 Your goal is to answer their questions about Rohan's experience, skills, and qualifications persuasively and accurately based ONLY on the provided information.
 
 ### Current Context
-- Today's Date: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+- Today's Date: 
+${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - ALWAYS use this current date to calculate accurate durations for his work experience.
 
 ### Identity & Core Info
 - Name: Rohan Singh Rajput
 - Role: Senior Backend Engineer
+- Experience: nearly 5 years of total professional backend experience.
 - Focus: Backend architecture, Golang, Python, Microservices, Scalable Systems.
 
 ### Experience History
@@ -124,8 +143,10 @@ Your goal is to answer their questions about Rohan's experience, skills, and qua
 - NGP Websmart Pvt. Ltd (Jan 2022 to Apr 2022): Software Developer Intern. Streamlined operational workflows using Python automation.
 
 ### Technical Arsenal
-- Languages: Go (Golang), Python
-- DB & Infra: PostgreSQL, MongoDB, DynamoDB, Redis, Apache Kafka, AWS, Docker, Kubernetes.
+- Architecture: Microservices, Event-Driven Architecture, gRPC, RESTful APIs, WebSockets, Apache Kafka.
+- Infrastructure: AWS (S3, SQS), Docker, Kubernetes, HashiCorp Vault.
+- Databases: PostgreSQL, MongoDB, DynamoDB, Redis.
+- DevOps: Jenkins, JFrog, Git, Dynatrace.
 
 ### Education & Awards
 - B.Tech CSE from SRM Institute (June 2018 - May 2022, 8.96 GPA).
@@ -135,7 +156,8 @@ Your goal is to answer their questions about Rohan's experience, skills, and qua
 ### Guidelines
 - Tone: Professional, confident, concise. Format key terms in **bold**.
 - Keep responses brief (1-3 paragraphs) as they are in a chat interface.
-- If asked about contact info, provide email: ${PORTFOLIO_DATA.contact.email} and Phone: ${PORTFOLIO_DATA.contact.phone}.
+- If asked about contact info, provide email: 
+${PORTFOLIO_DATA.contact.email} and Phone: ${PORTFOLIO_DATA.contact.phone}.
 - Always advocate for Rohan as an excellent candidate for senior backend roles.
 `;
 
@@ -151,8 +173,8 @@ export default function PortfolioApp() {
         
         <div className="mt-24 space-y-32">
           <ExperienceSection />
-          <OpenSourceSection />
           <SkillsSection />
+          <OpenSourceSection />
           <AwardsSection />
         </div>
       </main>
@@ -172,8 +194,8 @@ function Navbar() {
         </div>
         <div className="hidden md:flex space-x-8 text-sm font-medium text-zinc-400">
           <a href="#experience" className="hover:text-emerald-400 transition-colors">Experience</a>
-          <a href="#opensource" className="hover:text-emerald-400 transition-colors">Open Source</a>
           <a href="#skills" className="hover:text-emerald-400 transition-colors">Skills</a>
+          <a href="#opensource" className="hover:text-emerald-400 transition-colors">Open Source</a>
           <a href="#contact" className="hover:text-emerald-400 transition-colors">Contact</a>
         </div>
       </div>
@@ -244,7 +266,7 @@ function HeroSection({ chatOpen, setChatOpen }) {
 
 function CurlBadge() {
   const [copied, setCopied] = useState(false);
-  const command = "curl -s https://api.rohansingh.dev/v1/summary";
+  const command = "curl -s https://rohanrajput.is-a.dev/summary.json";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(command);
@@ -268,7 +290,7 @@ function CurlBadge() {
 
 function AIChatBox({ onClose }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', text: `Hi! I'm Rohan's AI assistant. I can calculate his exact years of experience, detail his work at Axis Direct, or discuss his Golang expertise. What would you like to know?` }
+    { role: 'assistant', content: `Hi! I'm Rohan's AI assistant. I can calculate his exact years of experience, detail his work at Axis Direct, or discuss his Golang expertise. What would you like to know?` }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -301,17 +323,16 @@ function AIChatBox({ onClose }) {
     const userQuery = inputValue.trim();
     setInputValue('');
     
-    const newMessages = [...messages, { role: 'user', text: userQuery }];
+    const newMessages = [...messages, { role: 'user', content: userQuery }];
     setMessages(newMessages);
     setIsLoading(true);
 
     try {
-      // NOTE: Replace this with your actual Groq key in your local VS Code!
       const apiKey = import.meta.env.VITE_GROQ_API_KEY;
       const apiUrl = "https://api.groq.com/openai/v1/chat/completions";
       
       const filteredHistory = newMessages.filter(msg => 
-        !msg.text.includes("trouble connecting") && !msg.text.includes("rate_limit")
+        !msg.content.includes("trouble connecting") && !msg.content.includes("rate_limit")
       );
 
       const payload = {
@@ -340,7 +361,7 @@ function AIChatBox({ onClose }) {
       
       if (data.choices && data.choices[0].message) {
         const aiResponse = data.choices[0].message.content;
-        setMessages(prev => [...prev, { role: 'assistant', text: aiResponse }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
       } else {
         throw new Error("Invalid response structure");
       }
@@ -350,7 +371,7 @@ function AIChatBox({ onClose }) {
         ? "I'm experiencing heavy traffic right now (rate limit exceeded). Please email Rohan directly or try again in a minute."
         : "I'm having a little trouble connecting right now. Please feel free to email Rohan directly or try again in a moment.";
       
-      setMessages(prev => [...prev, { role: 'assistant', text: errorMsg }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: errorMsg }]);
     } finally {
       setIsLoading(false);
     }
@@ -380,7 +401,7 @@ function AIChatBox({ onClose }) {
                 : 'bg-zinc-900 text-zinc-300 rounded-tl-sm border border-zinc-800'
             }`}>
               <div className="text-sm leading-relaxed">
-                {msg.role === 'user' ? msg.text : formatAIResponse(msg.text)}
+                {msg.role === 'user' ? msg.content : formatAIResponse(msg.content)}
               </div>
             </div>
           </div>
@@ -465,6 +486,51 @@ function ExperienceSection() {
   );
 }
 
+function SkillsSection() {
+  const getCategoryIcon = (iconName) => {
+    switch(iconName) {
+      case 'Code': return <Code className="w-5 h-5 text-emerald-400" />;
+      case 'Database': return <Database className="w-5 h-5 text-emerald-400" />;
+      case 'Box': return <Box className="w-5 h-5 text-emerald-400" />;
+      case 'Server': return <Server className="w-5 h-5 text-emerald-400" />;
+      case 'Terminal': return <Terminal className="w-5 h-5 text-emerald-400" />;
+      default: return <Code className="w-5 h-5 text-emerald-400" />;
+    }
+  };
+
+  return (
+    <section id="skills" className="scroll-mt-24">
+      <FadeIn>
+        <div className="flex items-center space-x-3 mb-12">
+          <Code className="w-8 h-8 text-emerald-400" />
+          <h2 className="text-3xl font-bold text-white">Technical Arsenal</h2>
+        </div>
+      </FadeIn>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {PORTFOLIO_DATA.skills.map((skillGroup, idx) => (
+          <FadeIn key={idx} delay={idx * 0.1} className="h-full">
+            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl h-full hover:border-emerald-500/30 transition-colors">
+              <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-zinc-800/50">
+                {getCategoryIcon(skillGroup.icon)}
+                <h3 className="text-lg font-bold text-zinc-100">{skillGroup.category}</h3>
+              </div>
+              <ul className="space-y-3">
+                {skillGroup.items.map((item, itemIdx) => (
+                  <li key={itemIdx} className="flex items-center text-zinc-400 group">
+                    <ChevronRight className="w-4 h-4 mr-2 opacity-0 -ml-6 group-hover:opacity-100 group-hover:ml-0 text-emerald-500 transition-all duration-300" />
+                    <span className="group-hover:text-zinc-200 transition-colors duration-300 transform group-hover:translate-x-1">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function OpenSourceSection() {
   return (
     <section id="opensource" className="scroll-mt-24">
@@ -492,36 +558,6 @@ function OpenSourceSection() {
                 {oss.description}
               </p>
             </div>
-          </FadeIn>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function SkillsSection() {
-  const getIconForSkill = (skill) => {
-    if (skill.includes("SQL") || skill.includes("Mongo") || skill.includes("Dynamo") || skill.includes("Redis")) return <Database className="w-4 h-4 mb-2 opacity-50" />;
-    if (skill.includes("Docker") || skill.includes("Kuber") || skill.includes("AWS") || skill.includes("Kafka")) return <Box className="w-4 h-4 mb-2 opacity-50" />;
-    return <Server className="w-4 h-4 mb-2 opacity-50" />;
-  };
-
-  return (
-    <section id="skills" className="scroll-mt-24">
-      <FadeIn>
-        <div className="flex items-center space-x-3 mb-12">
-          <Code className="w-8 h-8 text-emerald-400" />
-          <h2 className="text-3xl font-bold text-white">Technical Arsenal</h2>
-        </div>
-      </FadeIn>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {PORTFOLIO_DATA.skills.map((skill, idx) => (
-          <FadeIn key={idx} delay={idx * 0.05}>
-            <HoverCard className="flex flex-col items-center justify-center p-4 bg-zinc-900 border border-zinc-800 rounded-xl hover:border-emerald-500/30 hover:bg-zinc-800/80 transition-all group cursor-default h-full">
-              {getIconForSkill(skill)}
-              <span className="text-zinc-300 font-medium text-sm text-center group-hover:text-emerald-300 transition-colors">{skill}</span>
-            </HoverCard>
           </FadeIn>
         ))}
       </div>
@@ -594,17 +630,22 @@ function Footer() {
             </p>
           </FadeIn>
 
-          <FadeIn delay={0.1}>
+          <FadeIn delay={0.1} className="flex justify-center items-center mb-12">
             <a 
-              href={`mailto:${PORTFOLIO_DATA.contact.email}`}
-              className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors mb-12"
+              href="/resume.pdf"
+              download="Rohan_Singh_Rajput_Resume.pdf"
+              className="inline-flex items-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
             >
-              <Mail className="w-5 h-5 mr-2" />
-              Get In Touch
+              <Download className="w-5 h-5 mr-2" />
+              Download Resume
             </a>
           </FadeIn>
           
-          <FadeIn delay={0.2} className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-8">
+          <FadeIn delay={0.2} className="flex flex-wrap justify-center items-center gap-6 sm:gap-8">
+            <a href={`mailto:${PORTFOLIO_DATA.contact.email}`} className="flex items-center text-zinc-500 hover:text-emerald-400 transition-colors">
+              <Mail className="w-5 h-5 mr-2" />
+              <span className="font-mono text-sm">{PORTFOLIO_DATA.contact.email}</span>
+            </a>
             <a href={`https://github.com/${PORTFOLIO_DATA.contact.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-zinc-500 hover:text-emerald-400 transition-colors">
               <GithubIcon className="w-5 h-5 mr-2" />
               <span className="font-mono text-sm">{PORTFOLIO_DATA.contact.github}</span>
