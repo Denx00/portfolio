@@ -184,23 +184,23 @@ const PORTFOLIO_DATA = {
   ],
   skills: [
     {
-      category: "Languages & Data",
-      items: ["Golang", "Python", "PostgreSQL", "MongoDB", "Redis", "DynamoDB"],
+      category: "Languages & Frameworks",
+      items: ["Golang", "Python", "SQL", "Gin", "Fiber", "GORM"],
+      icon: "Code"
+    },
+    {
+      category: "Databases & Streaming",
+      items: ["PostgreSQL", "MongoDB", "MS SQL Server", "DynamoDB", "Redis", "Apache Kafka"],
       icon: "Database"
     },
     {
-      category: "Architecture",
-      items: ["Microservices", "Event-Driven", "gRPC", "RESTful APIs", "WebSockets", "Apache Kafka"],
+      category: "Architecture & APIs",
+      items: ["Microservices", "Event-Driven", "gRPC", "Protobuf", "RESTful APIs", "WebSockets"],
       icon: "Server"
     },
     {
-      category: "Cloud & Infra",
-      items: ["AWS (S3, SQS)", "Docker", "Kubernetes", "HashiCorp Vault"],
-      icon: "Box"
-    },
-    {
-      category: "DevOps & Tools",
-      items: ["Jenkins", "JFrog", "Git", "Dynatrace"],
+      category: "Cloud, DevOps & Obs.",
+      items: ["AWS (SQS)", "Docker & Kubernetes", "Jenkins & JFrog", "OpenTelemetry", "Dynatrace", "HashiCorp Vault"],
       icon: "Terminal"
     }
   ],
@@ -219,6 +219,12 @@ const PORTFOLIO_DATA = {
     }
   ],
   openSource: [
+    {
+      project: "Supabase Auth",
+      role: "Contributor",
+      description: "Secured third-party OAuth 2.1 integrations by engineering custom route middleware and defense-in-depth handler checks in Go, preventing unauthorized client access.",
+      link: "https://github.com/supabase/auth/pull/2878"
+    },
     {
       project: "JFrog CLI",
       role: "Contributor",
@@ -256,15 +262,16 @@ ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - NGP Websmart Pvt. Ltd (Jan 2022 to Apr 2022): Software Developer Intern. Streamlined operational workflows using Python automation.
 
 ### Technical Arsenal
-- Architecture: Microservices, Event-Driven Architecture, gRPC, RESTful APIs, WebSockets, Apache Kafka.
-- Infrastructure: AWS (S3, SQS), Docker, Kubernetes, HashiCorp Vault.
-- Databases: PostgreSQL, MongoDB, DynamoDB, Redis.
-- DevOps: Jenkins, JFrog, Git, Dynatrace.
+- Languages & Frameworks: Golang, Python, SQL, Gin, Fiber, GORM.
+- Databases & Streaming: PostgreSQL, MongoDB, MS SQL Server, DynamoDB, Redis, Apache Kafka.
+- Architecture & APIs: Microservices, Event-Driven, gRPC, Protobuf, RESTful APIs, WebSockets.
+- Cloud & DevOps: AWS (SQS), Docker, Kubernetes, Jenkins, JFrog, HashiCorp Vault.
+- Observability: OpenTelemetry, Dynatrace.
 
 ### Education & Awards
 - B.Tech CSE from SRM Institute (June 2018 - May 2022, 8.96 GPA).
 - Best Debutant Award at Axis Direct (July 2026).
-- Open Source Contributor for JFrog CLI (Golang).
+- Open Source Contributor for Supabase Auth (OAuth 2.1 integrations & custom Go middleware) and JFrog CLI (Golang).
 
 ### Guidelines
 - Tone: Professional, confident, concise. Format key terms in **bold**.
