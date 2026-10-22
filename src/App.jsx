@@ -30,7 +30,7 @@ const StyleBlock = () => (
       width: max-content;
     }
 
-    /* Crisp Cyber Glitch (Applied only to the emerald name span) */
+    /* Crisp Cyber Glitch */
     .glitch-text {
       position: relative;
       display: inline-block;
@@ -57,7 +57,6 @@ const StyleBlock = () => (
       animation: glitch-anim 3s infinite linear alternate-reverse;
     }
 
-    /* Tight keyframe intervals (93%-100%) so slices snap instead of sliding */
     @keyframes glitch-anim {
       0%, 93% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
       94% { opacity: 1; clip-path: inset(20% 0 80% 0); transform: translate(-2px, 1px); }
@@ -67,7 +66,7 @@ const StyleBlock = () => (
       100% { opacity: 0; clip-path: inset(0 0 0 0); transform: translate(0); }
     }
 
-    /* Single-fire burst class triggered on mouse enter, automatically resets */
+    /* Single-fire burst class */
     .glitch-burst::before {
       animation: glitch-Once-1 0.35s steps(1, end) 1 !important;
     }
@@ -93,7 +92,6 @@ const StyleBlock = () => (
   `}</style>
 );
 
-// --- ANIMATION COMPONENTS ---
 export function FadeIn({ children, delay = 0, className = "" }) {
   return (
     <motion.div
@@ -108,7 +106,6 @@ export function FadeIn({ children, delay = 0, className = "" }) {
   );
 }
 
-// Vercel-style Mouse Spotlight Card + Pop-Out Scaling
 export function SpotlightCard({ children, className = "" }) {
   const divRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -246,8 +243,7 @@ You are speaking with a recruiter or engineering manager who is visiting Rohan's
 Your goal is to answer their questions about Rohan's experience, skills, and qualifications persuasively and accurately based ONLY on the provided information.
 
 ### Current Context
-- Today's Date: 
-${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+- Today's Date: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - ALWAYS use this current date to calculate accurate durations for his work experience.
 
 ### Identity & Core Info
@@ -273,11 +269,18 @@ ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
 - Best Debutant Award at Axis Direct (July 2026).
 - Open Source Contributor for Supabase Auth (OAuth 2.1 integrations & custom Go middleware) and JFrog CLI (Golang).
 
+### Architecture Simulation & Decision Making Protocol
+If the user asks you to design a system, or asks how Rohan approaches a requirement, you MUST simulate Rohan's thought process using this exact structure:
+1. **The Approach:** Briefly explain the architecture choice (always favor Golang microservices, Polyglot persistence like Postgres+Redis, and Event-Driven systems like Kafka for high throughput).
+2. **ASCII Architecture Diagram:** You MUST draw a clean, terminal-style ASCII architecture diagram to visualize the data flow. Wrap the ASCII art strictly inside a markdown code block (\`\`\`text ... \`\`\`). 
+3. **Potential Bottlenecks & Results:** Identify 1-2 realistic engineering challenges (e.g., race conditions, network latency) and how Rohan mitigates them (e.g., OpenTelemetry for tracing, Redis caching, circuit breakers).
+
+If the user asks WHY Rohan made a specific choice (e.g., "Why use Redis for the options chain?"), defend the choice using concrete engineering principles (e.g., latency constraints, rapid read-throughput, fault tolerance).
+
 ### Guidelines
 - Tone: Professional, confident, concise. Format key terms in **bold**.
-- Keep responses brief (1-3 paragraphs) as they are in a chat interface.
-- If asked about contact info, provide email: 
-${PORTFOLIO_DATA.contact.email} and Phone: ${PORTFOLIO_DATA.contact.phone}.
+- Keep responses brief (1-3 paragraphs) outside of the code blocks.
+- If asked about contact info, provide email: ${PORTFOLIO_DATA.contact.email} and Phone: ${PORTFOLIO_DATA.contact.phone}.
 - Always advocate for Rohan as an excellent candidate for senior backend roles.
 `;
 
@@ -471,15 +474,24 @@ function CurlBadge() {
 
 function AIChatBox({ onClose }) {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: `Hi! I'm Rohan's AI assistant. I can calculate his exact years of experience, detail his work at Axis Direct, or discuss his Golang expertise. What would you like to know?` }
+    { role: 'assistant', content: `Hi! I'm Rohan's AI assistant. I can detail his work at Axis Direct, defend his architectural decisions, or run a quick system design simulation. What would you like to know?` }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Suggested Prompts State
+  const [suggestedPrompts, setSuggestedPrompts] = useState([
+    "Explain your experience with Golang and Microservices.",
+    "How did you reduce API latency by 60% at Axis Direct?",
+    "Design a high-throughput distributed order engine.",
+    "How do you handle system observability and tracing?"
+  ]);
+
   const chatBoxWrapperRef = useRef(null);
   const chatContainerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // On mount: focus input WITHOUT jumping the page, and center the whole chat box in the viewport
+  // Auto-focus and scroll to center on mount
   useEffect(() => {
     inputRef.current?.focus({ preventScroll: true });
 
@@ -501,34 +513,60 @@ function AIChatBox({ onClose }) {
     };
   }, [onClose]);
 
-  // Scroll internal message container only when new messages arrive
+  // SMART SCROLLING LOGIC
   useEffect(() => {
     if (!chatContainerRef.current) return;
+    
+    // Only force-scroll to bottom if it is the very first render, 
+    // OR if the user just clicked send (isLoading is true).
+    // When the AI finishes (isLoading becomes false), we explicitly DO NOT scroll.
+    // This perfectly anchors the user's viewport at the TOP of the newly generated long response.
     if (messages.length <= 1) {
       chatContainerRef.current.scrollTop = 0;
-    } else {
+    } else if (isLoading) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
 
+  // Advanced formatter to handle ASCII code blocks & bold text
   const formatAIResponse = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\*\*.*?\*\*)/g);
-    return parts.map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} className="text-emerald-400 font-semibold">{part.slice(2, -2)}</strong>;
+    
+    // Split text by markdown code blocks
+    const blockParts = text.split(/(```[\s\S]*?```)/g);
+    
+    return blockParts.map((part, index) => {
+      // If it is a code block
+      if (part.startsWith('```') && part.endsWith('```')) {
+        const codeContent = part.replace(/^```[a-z]*\n/, '').replace(/```$/, '');
+        return (
+          <pre key={index} className="bg-black border border-zinc-800 p-4 rounded-lg my-3 overflow-x-auto text-emerald-400 font-mono text-[10px] sm:text-xs leading-tight shadow-inner">
+            <code>{codeContent}</code>
+          </pre>
+        );
       }
-      return <span key={i}>{part}</span>;
+      
+      // Regular text: split by bold tags
+      const boldParts = part.split(/(\*\*.*?\*\*)/g);
+      return (
+        <span key={index}>
+          {boldParts.map((bPart, bIndex) => {
+            if (bPart.startsWith('**') && bPart.endsWith('**')) {
+              return <strong key={bIndex} className="text-emerald-400 font-semibold">{bPart.slice(2, -2)}</strong>;
+            }
+            return <span key={bIndex}>{bPart}</span>;
+          })}
+        </span>
+      );
     });
   };
 
-  const handleSend = async () => {
-    if (!inputValue.trim()) return;
+  const handleSend = async (overrideText = null) => {
+    const query = overrideText || inputValue.trim();
+    if (!query) return;
 
-    const userQuery = inputValue.trim();
     setInputValue('');
-    
-    const newMessages = [...messages, { role: 'user', content: userQuery }];
+    const newMessages = [...messages, { role: 'user', content: query }];
     setMessages(newMessages);
     setIsLoading(true);
 
@@ -565,8 +603,7 @@ function AIChatBox({ onClose }) {
       const data = await response.json();
       
       if (data.choices && data.choices[0].message) {
-        const aiResponse = data.choices[0].message.content;
-        setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+        setMessages(prev => [...prev, { role: 'assistant', content: data.choices[0].message.content }]);
       } else {
         throw new Error("Invalid response structure");
       }
@@ -582,12 +619,19 @@ function AIChatBox({ onClose }) {
     }
   };
 
+  // Click handler for suggestion pills
+  const handlePromptClick = (prompt) => {
+    // Remove the clicked prompt from the suggestions array so it disappears
+    setSuggestedPrompts(prev => prev.filter(p => p !== prompt));
+    handleSend(prompt);
+  };
+
   return (
     <div 
       ref={chatBoxWrapperRef}
-      className="bg-zinc-900 border border-emerald-500/40 ring-1 ring-emerald-500/20 rounded-2xl shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] overflow-hidden flex flex-col h-[420px] w-full text-left scroll-mt-24"
+      className="bg-zinc-900 border border-emerald-500/40 ring-1 ring-emerald-500/20 rounded-2xl shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] overflow-hidden flex flex-col h-[520px] w-full text-left scroll-mt-24"
     >
-      {/* Top Header with Close Cross */}
+      {/* Top Header */}
       <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center space-x-2">
           <Bot className="w-5 h-5 text-emerald-400" />
@@ -612,7 +656,7 @@ function AIChatBox({ onClose }) {
                 ? 'bg-emerald-600 text-white rounded-tr-sm' 
                 : 'bg-zinc-900 text-zinc-200 rounded-tl-sm border border-zinc-800'
             }`}>
-              <div className="text-sm leading-relaxed">
+              <div className="text-sm leading-relaxed whitespace-pre-wrap">
                 {msg.role === 'user' ? msg.content : formatAIResponse(msg.content)}
               </div>
             </div>
@@ -629,30 +673,50 @@ function AIChatBox({ onClose }) {
         )}
       </div>
 
-      {/* Input Bar */}
-      <div className="p-3 bg-zinc-900 border-t border-zinc-800 flex-shrink-0">
-        <div className="relative flex items-center">
-          <input
-            ref={inputRef}
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            placeholder="Ask about my backend architecture experience..."
-            className="w-full bg-zinc-950 text-white rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 border border-zinc-800 placeholder-zinc-500"
-          />
-          <button 
-            onClick={handleSend}
-            disabled={!inputValue.trim() || isLoading}
-            className="absolute right-2 p-2 bg-emerald-500 text-zinc-950 rounded-lg hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 transition-colors"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+      {/* Suggested Prompts & Input Bar */}
+      <div className="bg-zinc-900 border-t border-zinc-800 flex-shrink-0 flex flex-col">
+        
+        {/* Scrollable Suggestion Pills - Only renders if there are prompts left */}
+        {suggestedPrompts.length > 0 && (
+          <div className="flex overflow-x-auto gap-2 px-4 py-3 scrollbar-hide border-b border-zinc-800/50">
+            {suggestedPrompts.map((prompt, idx) => (
+              <button
+                key={idx}
+                onClick={() => handlePromptClick(prompt)}
+                disabled={isLoading}
+                className="whitespace-nowrap px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-emerald-500/20 text-zinc-300 hover:text-emerald-400 border border-zinc-700 hover:border-emerald-500/50 text-xs transition-colors duration-200 disabled:opacity-50"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Text Input */}
+        <div className="p-3">
+          <div className="relative flex items-center">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
+              placeholder="Ask about my backend architecture experience..."
+              className="w-full bg-zinc-950 text-white rounded-xl pl-4 pr-12 py-3 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 border border-zinc-800 placeholder-zinc-500"
+            />
+            <button 
+              onClick={() => handleSend()}
+              disabled={!inputValue.trim() || isLoading}
+              className="absolute right-2 p-2 bg-emerald-500 text-zinc-950 rounded-lg hover:bg-emerald-400 disabled:opacity-50 disabled:hover:bg-emerald-500 transition-colors"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
