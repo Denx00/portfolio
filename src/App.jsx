@@ -223,6 +223,12 @@ const PORTFOLIO_DATA = {
       link: "https://github.com/supabase/auth/pull/2878"
     },
     {
+      project: "QuickFIX/Go",
+      role: "Contributor",
+      description: "Cut FIXDecimal.Write latency by 87% (155ns to 20ns) and allocations by 82% with an int64 fast path that keeps output identical to the existing rounding, verified against StringFixed across edge cases.",
+      link: "https://github.com/quickfixgo/quickfix/pull/787"
+    },
+    {
       project: "JFrog CLI",
       role: "Contributor",
       description: "Engineered automated Bitbucket tag creation triggered by new JFrog/Artifactory releases via Go.",
@@ -267,7 +273,7 @@ Your goal is to answer their questions about Rohan's experience, skills, and qua
 ### Education & Awards
 - B.Tech CSE from SRM Institute (June 2018 - May 2022, 8.96 GPA).
 - Best Debutant Award at Axis Direct (July 2026).
-- Open Source Contributor for Supabase Auth (OAuth 2.1 integrations & custom Go middleware) and JFrog CLI (Golang).
+- Open Source Contributor for Supabase Auth (OAuth 2.1 integrations & custom Go middleware), QuickFIX/Go (86.8% faster FIXDecimal.Write, 11 to 2 allocations per op, via an int64 fast path) and JFrog CLI (Golang).
 
 ### Architecture Simulation & Decision Making Protocol
 If the user asks you to design a system, or asks how Rohan approaches a requirement, you MUST simulate Rohan's thought process using this exact structure:
@@ -824,7 +830,7 @@ function OpenSourceSection() {
         </div>
       </FadeIn>
       
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {PORTFOLIO_DATA.openSource.map((oss, idx) => (
           <FadeIn key={idx} delay={0.1 * idx} className="h-full">
             <SpotlightCard className="h-full p-6 group">
